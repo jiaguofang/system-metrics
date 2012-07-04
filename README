@@ -1,0 +1,15 @@
+A demo to use platform APIs to sample system metrics (e.g. cpu usage,
+uptime, thread count, etc).
+
+It includes two parts: system info and process info.
+
+SystemInfo:
+    double GetSystemCPUUsage();
+    double GetSystemMemoryTotal();
+    double GetSystemMemoryUsed();
+
+ProcessInfo:
+    unsigned long long GetProcessUptime();
+    double GetProcessCPUUsage();
+    double GetProcessMemoryUsed();
+    unsigned long GetProcessThreadCount();
