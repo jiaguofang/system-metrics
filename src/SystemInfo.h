@@ -20,7 +20,7 @@ private:
 	PDH_HQUERY mQuery;
 	PDH_HCOUNTER mCounter;
 
-#elif defined(linux)
+#elif defined(__linux__)
 	unsigned long long mPrevUserTime;
 	unsigned long long mPrevNiceTime;
 	unsigned long long mPrevKernelTime;

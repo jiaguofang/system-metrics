@@ -25,7 +25,7 @@ private:
 	ULARGE_INTEGER mPrevSystemTime; // previously measured system time
 	ULARGE_INTEGER mPrevKernelTime; // amount of time ran in kernel mode
 	ULARGE_INTEGER mPrevUserTime; // amount of time ran in user mode
-#elif defined(linux)
+#elif defined(__linux__)
 	long mJiffiesPerSecond;
 	unsigned long long mStartTimeSinceBoot;
 	unsigned long long mPrevSystemTime;

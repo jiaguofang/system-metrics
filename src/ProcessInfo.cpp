@@ -6,7 +6,12 @@
 #include "tlhelp32.h"
 #endif
 
-#ifdef linux
+#ifdef __linux__
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
 #include <sys/sysinfo.h>
 #define LINEBUFFLEN 2048
 #endif
@@ -42,7 +47,7 @@ ProcessInfo::ProcessInfo(unsigned int iProcessId)
 		CloseHandle(lProcessHandle);
 	}
 
-#elif defined(linux)
+#elif defined(__linux__)
 	mJiffiesPerSecond = sysconf(_SC_CLK_TCK);
 	mPrevSystemTime = 0;
 	mPrevUserTime = 0;
@@ -118,7 +123,7 @@ unsigned long long ProcessInfo::GetProcessUptime()
 
 	return lUptimeInSec;
 
-#elif defined(linux)
+#elif defined(__linux__)
 	struct sysinfo lSysinfo;
 	int lReturn = sysinfo(&lSysinfo);
 
@@ -167,7 +172,7 @@ double ProcessInfo::GetProcessCPUUsage()
 		CloseHandle(lProcessHandle);
 	}
 
-#elif defined(linux)
+#elif defined(__linux__)
 	unsigned long long lCurrSystemTime = 0;
 	unsigned long long lCurrUserTime = 0;
 	unsigned long long lCurrKernelTime = 0;
@@ -238,7 +243,7 @@ double ProcessInfo::GetProcessMemoryUsed()
 		CloseHandle(lProcessHandle);
 	}
 
-#elif defined(linux)
+#elif defined(__linux__)
 	char lFileName[256];
 	sprintf(lFileName, "/proc/%d/status", mProcessId);
 	FILE* lpFile = fopen(lFileName, "r");
@@ -262,7 +267,7 @@ double ProcessInfo::GetProcessMemoryUsed()
 					cursor++;
 				}
 				*cursor = '\0';
-				lMemUsed = MBase::DecimalToInt64(lNumString) / 1024.0;
+				lMemUsed = atoll(lNumString) / 1024.0;
 				break;
 			}
 		}
@@ -301,7 +306,7 @@ unsigned long ProcessInfo::GetProcessThreadCount()
 		CloseHandle(lSnapshot);
 	}
 
-#elif defined(linux)
+#elif defined(__linux__)
 	// get number of threads from file /proc/[pid]/stat
 	char lFileName[256];
 	sprintf(lFileName, "/proc/%d/stat", mProcessId);

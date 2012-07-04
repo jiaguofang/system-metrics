@@ -4,7 +4,12 @@
 #pragma comment(lib, "pdh.lib")
 #endif
 
-#ifdef linux
+#ifdef __linux__
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
 #include <sys/sysinfo.h>
 #endif
 
@@ -15,7 +20,7 @@ SystemInfo::SystemInfo()
 	PdhAddCounter(mQuery, L"\\Processor(_Total)\\% Processor Time", NULL, &mCounter);
 	PdhCollectQueryData(mQuery);
 
-#elif defined(linux)
+#elif defined(__linux__)
 	FILE* lpFile = fopen("/proc/stat", "r");
 	if (lpFile)
 	{
@@ -43,7 +48,7 @@ double SystemInfo::GetSystemCPUUsage()
 			lCPUUsage = lCounterVal.doubleValue;
 	}
 
-#elif defined(linux)
+#elif defined(__linux__)
 	unsigned long long lUserTime, lNiceTime, lKernelTime, lIdleTime;
 
 	FILE* lpFile = fopen("/proc/stat", "r");
@@ -81,7 +86,7 @@ double SystemInfo::GetSystemMemoryTotal()
 	if (lSuccess)
 		lMemTotal = lMemInfo.ullTotalPhys / (1024.0 * 1024.0);
 
-#elif defined(linux)
+#elif defined(__linux__)
 	struct sysinfo lSysinfo;
 	int lReturn = sysinfo(&lSysinfo);
 
@@ -105,7 +110,7 @@ double SystemInfo::GetSystemMemoryUsed()
 	if (lSuccess)
 		lMemUsed = (lMemInfo.ullTotalPhys - lMemInfo.ullAvailPhys) / (1024.0 * 1024.0);
 
-#elif defined(linux)
+#elif defined(__linux__)
 	struct sysinfo lSysinfo;
 	int lReturn = sysinfo(&lSysinfo);
 
