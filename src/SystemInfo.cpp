@@ -1,9 +1,5 @@
 #include "SystemInfo.h"
 
-#ifdef _WIN32
-#pragma comment(lib, "pdh.lib")
-#endif
-
 #ifdef __linux__
 #include <stdio.h>
 #include <unistd.h>
@@ -16,9 +12,15 @@
 SystemInfo::SystemInfo()
 {
 #ifdef _WIN32
-	PdhOpenQuery(NULL, NULL, &mQuery);
-	PdhAddCounter(mQuery, L"\\Processor(_Total)\\% Processor Time", NULL, &mCounter);
-	PdhCollectQueryData(mQuery);
+	// get amount of time the system has run in kernel and user mode
+	FILETIME lSysIdleTime, lSysKernelTime, lSysUserTime;
+	BOOL lSuccess = GetSystemTimes(&lSysIdleTime, &lSysKernelTime, &lSysUserTime);
+	if (lSuccess)
+	{
+		memcpy(&mPrevSysIdleTime, &lSysIdleTime, sizeof(FILETIME));
+		memcpy(&mPrevSysKernelTime, &lSysKernelTime, sizeof(FILETIME));
+		memcpy(&mPrevSysUserTime, &lSysUserTime, sizeof(FILETIME));
+	}
 
 #elif defined(__linux__)
 	FILE* lpFile = fopen("/proc/stat", "r");
@@ -39,14 +41,29 @@ double SystemInfo::GetSystemCPUUsage()
 	double lCPUUsage = -1;
 
 #ifdef _WIN32
-	PDH_STATUS lStatus = PdhCollectQueryData(mQuery);
-	if (lStatus == ERROR_SUCCESS)
+	// get amount of time the system has run in kernel and user mode
+	FILETIME lSysIdleTime, lSysKernelTime, lSysUserTime;
+	BOOL lSuccess = GetSystemTimes(&lSysIdleTime, &lSysKernelTime, &lSysUserTime);
+	ULARGE_INTEGER lCurrSysIdleTime, lCurrSysKernelTime, lCurrSysUserTime;
+	if (lSuccess)
 	{
-		PDH_FMT_COUNTERVALUE lCounterVal;
-		lStatus = PdhGetFormattedCounterValue(mCounter, PDH_FMT_DOUBLE, NULL, &lCounterVal);
-		if (lStatus == ERROR_SUCCESS)
-			lCPUUsage = lCounterVal.doubleValue;
+		memcpy(&lCurrSysIdleTime, &lSysIdleTime, sizeof(FILETIME));
+		memcpy(&lCurrSysKernelTime, &lSysKernelTime, sizeof(FILETIME));
+		memcpy(&lCurrSysUserTime, &lSysUserTime, sizeof(FILETIME));
 	}
+
+	// calculate system cpu usage
+	ULONGLONG lTotalBusy = (lCurrSysKernelTime.QuadPart + lCurrSysUserTime.QuadPart - lCurrSysIdleTime.QuadPart) -
+		(mPrevSysKernelTime.QuadPart + mPrevSysUserTime.QuadPart - mPrevSysIdleTime.QuadPart);
+	ULONGLONG lTotalSystem = (lCurrSysKernelTime.QuadPart + lCurrSysUserTime.QuadPart) -
+		(mPrevSysKernelTime.QuadPart + mPrevSysUserTime.QuadPart);
+	if (lTotalSystem > 0)
+		lCPUUsage = lTotalBusy * 100.0 / lTotalSystem;
+	
+	// store current time info
+	mPrevSysIdleTime = lCurrSysIdleTime;
+	mPrevSysKernelTime = lCurrSysKernelTime;
+	mPrevSysUserTime = lCurrSysUserTime;
 
 #elif defined(__linux__)
 	unsigned long long lUserTime, lNiceTime, lKernelTime, lIdleTime;

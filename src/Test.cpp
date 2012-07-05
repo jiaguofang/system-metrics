@@ -1,7 +1,10 @@
 #include "ProcessInfo.h"
 #include "SystemInfo.h"
 #include <stdio.h>
+
+#ifdef __linux__
 #include <unistd.h>
+#endif
 
 int main()
 {
