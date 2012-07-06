@@ -261,12 +261,12 @@ double ProcessInfo::GetProcessMemoryUsed()
 			if (0 == strncmp(lLineBuf, "VmRSS:", 6))
 			{
 				char* cursor = lLineBuf + 6;
-				/* Get rid of preceding blanks */
+				// Get rid of preceding blanks
 				while (!isdigit(*cursor))
 				{
 					cursor++;
 				}
-				/* Get rid of following blanks */
+				// Get rid of following blanks
 				char* lNumString = cursor;
 				while (isdigit(*cursor))
 				{

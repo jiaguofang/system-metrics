@@ -26,7 +26,7 @@ SystemInfo::SystemInfo()
 	FILE* lpFile = fopen("/proc/stat", "r");
 	if (lpFile)
 	{
-		fscanf(lpFile, "cpu %llu %llu %llu %llu", &mPrevUserTime, &mPrevNiceTime, &mPrevKernelTime, &mPrevIdleTime);
+		fscanf(lpFile, "cpu %llu %llu %llu %llu", &mPrevSysUserTime, &mPrevSysNiceTime, &mPrevSysKernelTime, &mPrevSysIdleTime);
 		fclose(lpFile);
 	}
 #endif
@@ -74,16 +74,16 @@ double SystemInfo::GetSystemCPUUsage()
 		fscanf(lpFile, "cpu %llu %llu %llu %llu", &lUserTime, &lNiceTime, &lKernelTime, &lIdleTime);
 		fclose(lpFile);
 
-		unsigned long long lNotIdle = (lUserTime - mPrevUserTime) + (lNiceTime - mPrevNiceTime) + (lKernelTime - mPrevKernelTime);
-		unsigned long long lTotalSystem = (lUserTime - mPrevUserTime) + (lNiceTime - mPrevNiceTime) + (lKernelTime - mPrevKernelTime) + (lIdleTime - mPrevIdleTime);
+		unsigned long long lNotIdle = (lUserTime - mPrevSysUserTime) + (lNiceTime - mPrevSysNiceTime) + (lKernelTime - mPrevSysKernelTime);
+		unsigned long long lTotalSystem = (lUserTime - mPrevSysUserTime) + (lNiceTime - mPrevSysNiceTime) + (lKernelTime - mPrevSysKernelTime) + (lIdleTime - mPrevSysIdleTime);
 		// the measure time is too short
 		if (lTotalSystem > 0)
 			lCPUUsage = (lNotIdle * 100.0) / lTotalSystem;
 
-		mPrevUserTime = lUserTime;
-		mPrevNiceTime = lNiceTime;
-		mPrevKernelTime = lKernelTime;
-		mPrevIdleTime = lIdleTime;
+		mPrevSysUserTime = lUserTime;
+		mPrevSysNiceTime = lNiceTime;
+		mPrevSysKernelTime = lKernelTime;
+		mPrevSysIdleTime = lIdleTime;
 	}
 
 #endif

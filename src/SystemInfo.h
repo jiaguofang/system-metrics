@@ -28,10 +28,10 @@ private:
 										// in all processes, on all processors).
 
 #elif defined(__linux__)
-	unsigned long long mPrevUserTime;
-	unsigned long long mPrevNiceTime;
-	unsigned long long mPrevKernelTime;
-	unsigned long long mPrevIdleTime;
+	unsigned long long mPrevSysUserTime;
+	unsigned long long mPrevSysNiceTime;
+	unsigned long long mPrevSysKernelTime;
+	unsigned long long mPrevSysIdleTime;
 #endif
 };
 
