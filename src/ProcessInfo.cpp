@@ -120,8 +120,6 @@ unsigned long long ProcessInfo::GetProcessUptime()
 	// so we need to divide by 10 million to get actual seconds
 	lUptimeInSec = (ulCurrTime.QuadPart - mCreationTime.QuadPart) / 10000000;
 
-	return lUptimeInSec;
-
 #elif defined(__linux__)
 	struct sysinfo lSysinfo;
 	int lReturn = sysinfo(&lSysinfo);
